@@ -1,0 +1,165 @@
+{
+  "name": "Local AI Assistant via Telegram",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -224,
+        -160
+      ],
+      "id": "b023b407-17eb-4931-ac36-cb66f22fc7d9",
+      "name": "Telegram Trigger",
+      "webhookId": "4bc11e96-3249-4dd9-aaa3-9dad258d76e7",
+      "credentials": {
+        "telegramApi": {
+          "id": "9DtMivhtMsb5ZNO7",
+          "name": "Jarvis"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "You are a helpful AI assistant on Telegram.\n1. STYLE: Be concise, friendly, and direct.\n2. FORMAT: Keep answers short and optimized for mobile screens.\n3. GOAL: Answer directly without unnecessary filler or introductions."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        80,
+        -160
+      ],
+      "id": "7fcbd1c1-cac7-48b0-8d83-18148a414ca2",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "operation": "sendChatAction",
+        "chatId": "={{ $json.message.from.id }}"
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        80,
+        -288
+      ],
+      "id": "8626db1a-0cbd-4e70-8c74-2cc16fc15da7",
+      "name": "Send a chat action",
+      "webhookId": "0b6321f0-cc0d-4530-9bfb-ccebb1e2d8db",
+      "credentials": {
+        "telegramApi": {
+          "id": "9DtMivhtMsb5ZNO7",
+          "name": "Jarvis"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        432,
+        -160
+      ],
+      "id": "8822e1f1-199f-417d-95d0-b54bc100c3c8",
+      "name": "Send a text message",
+      "webhookId": "a48f9ce4-a65f-4b50-abf7-44014771dfe8",
+      "credentials": {
+        "telegramApi": {
+          "id": "9DtMivhtMsb5ZNO7",
+          "name": "Jarvis"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "gemma3:12b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        80,
+        64
+      ],
+      "id": "4fc330af-bcf5-43f3-8522-0a99085c1f65",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "DUYuLMaHuNqaiV5p",
+          "name": "Ollama account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send a chat action",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a chat action": {
+      "main": [
+        []
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c5e35a8d-cb9b-4a06-92cb-10ec3f518849",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "79af7f213ccaeefbbab04e2082e398b996af24c89e20b518f02eaa0dd0c12d06"
+  },
+  "id": "cVFiRmPsoZhWjVJi",
+  "tags": []
+}
